@@ -1,8 +1,1 @@
 streamlit
-transformers
-torch
-torchvision
-torchaudio
-sentencepiece
-protobuf
-accelerate
