@@ -235,71 +235,23 @@ def create_theme_toggle():
             st.rerun()
 
 def show_help_modal():
-    """Показывает модальное окно с информацией о приложении"""
+    """Показывает информацию о приложении в expander"""
     if st.session_state.get('show_help', False):
-        st.markdown("""
-        <style>
-        .help-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 10000;
-            border: 2px solid #3B82F6;
-            max-width: 400px;
-            width: 90%;
-        }
-        .help-modal.dark {
-            background: #1F2937;
-            color: white;
-        }
-        .help-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-        }
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #6B7280;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        modal_class = "help-modal dark" if st.session_state.dark_theme else "help-modal"
-        
-        st.markdown(f"""
-        <div class="help-overlay" onclick="document.getElementById('help-modal').style.display='none'">
-            <div class="{modal_class}" id="help-modal">
-                <button class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">×</button>
-                <h3>🤖 О чат-боте</h3>
-                <p><strong>Версия:</strong> Alpha 1.0</strong></p>
-                <p>Это тестовая версия чат-бота Canteen-X. Некоторые функции могут быть временно недоступны или работать некорректно.</p>
-                <p><strong>Следите за обновлениями:</strong></p>
-                <p>📢 Наш Telegram: <em><a href="https://t.me/CanteenX1" target="_blank">Перейти в канал</a></em></p>
-                <small>Приносим извинения за временные неудобства! 🛠️</small>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Сбрасываем флаг показа помощи после отображения
-        if st.button("Закрыть", key="close_help"):
-            st.session_state.show_help = False
-            st.rerun()
-
+        with st.expander("ℹ️ О чат-боте Canteen-X", expanded=True):
+            st.markdown("""
+            **Версия:** Alpha 1.0
+            
+            Это тестовая версия чат-бота Canteen-X. Некоторые функции могут быть временно недоступны или работать некорректно.
+            
+            **Следите за обновлениями:**
+            📢 Наш Telegram: <a href="https://t.me/CanteenX1" target="_blank">Перейти в канал</a>
+            
+            *Приносим извинения за временные неудобства!* 🛠️
+            """, unsafe_allow_html=True)
+            
+            if st.button("Закрыть справку", key="close_help"):
+                st.session_state.show_help = False
+                st.rerun()
 def main():
     # Инициализация состояния помощи
     if 'show_help' not in st.session_state:
@@ -457,3 +409,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
