@@ -140,10 +140,161 @@ class SmartBot:
         
         return random.choice(universal_responses)
 
+# ===== КОД ДЛЯ ПЕРЕКЛЮЧАТЕЛЯ ТЕМЫ =====
+def setup_theme_toggle():
+    """Добавляет переключатель темы в правый верхний угол"""
+    
+    # CSS для темной темы и переключателя
+    st.markdown("""
+    <style>
+    /* Стили для переключателя темы */
+    .theme-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+    }
+    
+    .theme-toggle button {
+        background: rgba(255,255,255,0.9);
+        border: 1px solid #e5e7eb;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .theme-toggle button:hover {
+        background: rgba(255,255,255,1);
+        transform: scale(1.1);
+    }
+    
+    /* Темная тема */
+    .dark-theme {
+        background-color: #0E1117;
+        color: white;
+    }
+    
+    .dark-theme .stApp {
+        background-color: #0E1117;
+    }
+    
+    .dark-theme .stMarkdown {
+        color: white !important;
+    }
+    
+    .dark-theme .stTitle {
+        color: white !important;
+    }
+    
+    .dark-theme .stSubheader {
+        color: white !important;
+    }
+    
+    .dark-theme .stCaption {
+        color: #CCCCCC !important;
+    }
+    
+    .dark-theme .stSuccess {
+        background-color: #1A472A !important;
+        color: white !important;
+        border: 1px solid #2E8B57 !important;
+    }
+    
+    .dark-theme .stInfo {
+        background-color: #1E3A5F !important;
+        color: white !important;
+        border: 1px solid #3B82F6 !important;
+    }
+    
+    .dark-theme .stButton button {
+        background-color: #374151 !important;
+        color: white !important;
+        border: 1px solid #4B5563 !important;
+    }
+    
+    .dark-theme .stButton button:hover {
+        background-color: #4B5563 !important;
+        border-color: #6B7280 !important;
+    }
+    
+    .dark-theme .stTextInput input {
+        background-color: #1F2937 !important;
+        color: white !important;
+        border: 1px solid #374151 !important;
+    }
+    
+    .dark-theme .stTextInput input:focus {
+        border-color: #60A5FA !important;
+    }
+    
+    /* Стили для сообщений чата в темной теме */
+    .dark-theme .user-message {
+        background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%) !important;
+        color: white !important;
+        border: 1px solid #4A5568 !important;
+    }
+    
+    .dark-theme .bot-message {
+        background: #374151 !important;
+        color: white !important;
+        border: 1px solid #4B5563 !important;
+    }
+    
+    .dark-theme .bot-message-time {
+        color: #9CA3AF !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Переключатель темы
+    with st.container():
+        st.markdown('<div class="theme-toggle">', unsafe_allow_html=True)
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col5:
+            # Инициализация состояния темы
+            if 'dark_theme' not in st.session_state:
+                st.session_state.dark_theme = False
+            
+            # Кнопка переключения темы
+            theme_icon = "🌙" if not st.session_state.dark_theme else "☀️"
+            
+            if st.button(f"{theme_icon}", key="theme_toggle", help="Переключить тему"):
+                st.session_state.dark_theme = not st.session_state.dark_theme
+                st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Применение выбранной темы
+    if st.session_state.dark_theme:
+        st.markdown('<div class="dark-theme">', unsafe_allow_html=True)
+        return True
+    return False
+
+def apply_chat_styles(is_dark_theme):
+    """Обновляет стили сообщений в зависимости от темы"""
+    if is_dark_theme:
+        # Обновляем стили для темной темы
+        st.markdown("""
+        <style>
+        /* Переопределяем стили сообщений для темной темы */
+        div[data-testid="stMarkdownContainer"] {
+            color: white !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
 def main():
+    # Настройка темы
+    is_dark_theme = setup_theme_toggle()
+    
     # Инициализация бота
     if 'bot' not in st.session_state:
         st.session_state.bot = SmartBot()
+    
+    # Применение стилей чата
+    apply_chat_styles(is_dark_theme)
     
     # История чата
     if 'messages' not in st.session_state:
@@ -168,14 +319,18 @@ def main():
     # Чат
     st.markdown("---")
     
-    # Контейнер чата с фиксированной высотой и скроллом
+    # Контейнер чата
     chat_container = st.container()
     with chat_container:
         for msg in st.session_state.messages:
+            message_class = "user-message" if is_dark_theme and msg["role"] == "user" else ""
+            message_class = "bot-message" if is_dark_theme and msg["role"] == "bot" else message_class
+            time_class = "bot-message-time" if is_dark_theme and msg["role"] == "bot" else ""
+            
             if msg["role"] == "user":
                 st.markdown(f"""
                 <div style='display: flex; justify-content: flex-end; margin: 10px 0;'>
-                    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 18px 18px 0 18px; max-width: 70%; word-wrap: break-word;'>
+                    <div class='{message_class}' style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; border-radius: 18px 18px 0 18px; max-width: 70%; word-wrap: break-word;'>
                         {msg["content"]}
                         <div style='font-size: 0.7em; color: rgba(255,255,255,0.8); margin-top: 5px; text-align: right;'>{msg["time"]}</div>
                     </div>
@@ -184,9 +339,9 @@ def main():
             else:
                 st.markdown(f"""
                 <div style='display: flex; justify-content: flex-start; margin: 10px 0;'>
-                    <div style='background: #f0f2f6; color: #1f2937; padding: 12px 16px; border-radius: 18px 18px 18px 0; max-width: 70%; word-wrap: break-word; border: 1px solid #e5e7eb;'>
+                    <div class='{message_class}' style='background: #f0f2f6; color: #1f2937; padding: 12px 16px; border-radius: 18px 18px 18px 0; max-width: 70%; word-wrap: break-word; border: 1px solid #e5e7eb;'>
                         {msg["content"].replace('\n', '<br>')}
-                        <div style='font-size: 0.7em; color: #6b7280; margin-top: 5px;'>{msg["time"]}</div>
+                        <div class='{time_class}' style='font-size: 0.7em; color: #6b7280; margin-top: 5px;'>{msg["time"]}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -276,6 +431,10 @@ def main():
     
     with col2:
         st.info(f"💬 Сообщений: {len(st.session_state.messages)}")
+    
+    # Закрываем div темной темы если она активна
+    if is_dark_theme:
+        st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
