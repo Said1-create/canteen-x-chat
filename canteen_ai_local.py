@@ -11,6 +11,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Инициализация состояния темы ДО всех функций
+if 'dark_theme' not in st.session_state:
+    st.session_state.dark_theme = False
+
 class SmartBot:
     def __init__(self):
         self.conversation_history = []
@@ -140,13 +144,8 @@ class SmartBot:
         
         return random.choice(universal_responses)
 
-# ===== ИСПРАВЛЕННЫЙ КОД ДЛЯ ТЕМ =====
 def setup_theme():
     """Настраивает тему приложения"""
-    
-    # Инициализация состояния темы
-    if 'dark_theme' not in st.session_state:
-        st.session_state.dark_theme = False
     
     # CSS для темной темы
     if st.session_state.dark_theme:
